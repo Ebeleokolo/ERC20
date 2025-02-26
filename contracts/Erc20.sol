@@ -1,14 +1,14 @@
-// SPDX-License-Identifier: UNLICENSED
-pragma solidity 0.8.28;
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.28;
 
 contract Erc20 {
 
-    string private _name;
-    string private _symbol;
-    uint8 private _decimals;
-    uint256 private _totalSupply;
+    string public name;
+    string public symbol;
+    uint8 public immutable decimals;
+    address public immutable owner;
 
-    address private owner;
+    uint256 private _totalSupply;
 
     mapping(address => uint256) public balances;
     mapping(address => mapping(address => uint256)) public allowances;
@@ -28,30 +28,21 @@ contract Erc20 {
         _;
     }
 
-    // Constructor to initialize token properties and assign initial supply to deployer
-    constructor(string memory name_, string memory symbol_, uint8 decimals_, uint256 initialSupply) {
-        _name = name_;
-        _symbol = symbol_;
-        _decimals = decimals_;
+    constructor(
+        string memory _name,
+        string memory _symbol,
+        uint8 _decimals,
+        uint256 initialSupply
+    ) {
+        name = _name;
+        symbol = _symbol;
+        decimals = _decimals;
         owner = msg.sender;
-        
-        // Mint initial supply to deployer
-        _totalSupply = initialSupply * (10 ** uint256(decimals_));
+
+        _totalSupply = initialSupply * (10 ** uint256(decimals));
         balances[owner] = _totalSupply;
 
         emit Transfer(address(0), owner, _totalSupply);
-    }
-
-    function name() public view returns (string memory) {
-        return _name;
-    }
-
-    function symbol() public view returns (string memory) {
-        return _symbol;
-    }
-
-    function decimals() public view returns (uint8) {
-        return _decimals;
     }
 
     function totalSupply() public view returns (uint256) {
@@ -60,7 +51,7 @@ contract Erc20 {
 
     function balanceOf(address _owner) public view returns (uint256 balance) {
         if (_owner == address(0)) revert InvalidAddress();
-        balance = balances[_owner];
+        return balances[_owner];
     }
 
     function transfer(address _to, uint256 _value) public returns (bool success) {
@@ -111,4 +102,5 @@ contract Erc20 {
         emit Transfer(address(0), _to, _value);
         return true;
     }
+
 }
